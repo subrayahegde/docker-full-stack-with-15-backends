@@ -1,0 +1,12 @@
+docker compose down -v
+docker compose up --build
+
+docker compose up --build backend (IF NEEDED)
+docker compose up --build frontend  (IF NEEDED)
+
+docker compose run --rm backend bundle exec rails db:migrate
+
+Then, check http://localhost:5000/api/products and http://localhost:3000
+
+
+
