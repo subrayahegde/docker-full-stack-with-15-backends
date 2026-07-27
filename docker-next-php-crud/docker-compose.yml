@@ -1,0 +1,61 @@
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: crud-postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Pass123
+      POSTGRES_DB: clidb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    # --- ADD THIS HEALTHCHECK BLOCK ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d clidb"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crud-php-backend
+    environment:
+      # PHP often uses individual env variables instead of a single connection string
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_NAME=clidb
+      - DB_USER=postgres
+      - DB_PASSWORD=Pass123
+    ports:
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: crud-nextjs-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
+
