@@ -1,0 +1,17 @@
+
+{application, my_shop, [
+    {description, "Products REST API with Cowboy and Postgres"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {my_shop_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        cowboy,
+        epgsql,
+        poolboy
+    ]},
+    {env, []},
+    {modules, []}
+]}.
+
